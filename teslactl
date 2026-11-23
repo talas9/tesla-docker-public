@@ -1,0 +1,215 @@
+#!/bin/sh
+# teslactl — Tesla UI engine control CLI.
+# Same script backs both `docker exec <ctr> teslactl ...` (for humans + LLMs)
+# and the HTTP API (webui/cgi-bin/api calls these verbs). Pure sh.
+#
+# Verbs:
+#   start | stop | restart | shutdown | status | logs [-f] [N]
+#   firmware list | firmware select <name>
+#   config get dv <name> | config set dv <name> <val>
+#   config get gw <id>   | config set gw <id> <val>
+#   vnc on|off|status | debug | vnc-url | help
+set -u
+
+ENGINE_DIR=/opt/tesla/engine
+. "$ENGINE_DIR/fwlib.sh"
+: "${TESLA_DATA:=/data}"
+: "${TESLA_ROOT:=/tesla}"
+: "${TESLA_LOG:=/var/log/tesla/engine.log}"
+: "${SVDIR:=/etc/service}"
+: "${VNC_PORT:=5900}"
+: "${NOVNC_PORT:=6080}"
+: "${TESLA_HTTP_PORT:=8080}"
+RUN=/run/tesla
+SELFILE=$RUN/selected
+GWCONF=$RUN/gateway.conf
+export DBUS_SYSTEM_BUS_ADDRESS="unix:path=/run/dbus/system_bus_socket"
+mkdir -p "$RUN" 2>/dev/null || true
+
+log() { printf '%s [teslactl] %s\n' "$(date -u +%H:%M:%S)" "$*" | tee -a "$TESLA_LOG" ; }
+
+sv_() { sv "$@" "$SVDIR/engine" 2>&1 ; }
+
+cmd_start() {
+    rm -f "$SVDIR/engine/down" 2>/dev/null || true
+    log "start requested"
+    sv_ up
+    echo "engine: starting (watch: teslactl logs -f)"
+}
+
+cmd_stop() {
+    log "stop requested"
+    touch "$SVDIR/engine/down" 2>/dev/null || true
+    sv_ down
+    echo "engine: stopped"
+}
+
+cmd_restart() {
+    log "restart requested (full clean relaunch)"
+    rm -f "$SVDIR/engine/down" 2>/dev/null || true
+    sv_ restart
+    echo "engine: restarting"
+}
+
+cmd_shutdown() {
+    # graceful: stop engine, then unmount firmware so a different image can load
+    cmd_stop >/dev/null
+    sleep 1
+    log "shutdown: unmounting firmware"
+    if mountpoint -q "$TESLA_ROOT"; then
+        fusermount3 -u "$TESLA_ROOT" 2>/dev/null || fusermount -u "$TESLA_ROOT" 2>/dev/null || true
+    fi
+    if mountpoint -q "$RUN/lower"; then
+        fusermount3 -u "$RUN/lower" 2>/dev/null || fusermount -u "$RUN/lower" 2>/dev/null || true
+    fi
+    echo "engine: shut down (firmware unmounted)"
+}
+
+cmd_status() {
+    echo "== tesla-docker status =="
+    printf 'engine service : '; sv status "$SVDIR/engine" 2>&1 || echo "unknown"
+    printf 'webui service  : '; sv status "$SVDIR/webui" 2>&1 || echo "unknown"
+    echo   "selected fw    : $( [ -f "$SELFILE" ] && cat "$SELFILE" || echo '(none)')"
+    printf 'firmware mount : '; mountpoint -q "$TESLA_ROOT" && echo "mounted at $TESLA_ROOT" || echo "not mounted"
+    for p in Xvfb x11vnc websockify QtCar QtCarDvServer x11_touch_bridge dbus-daemon; do
+        if pgrep -x "$p" >/dev/null 2>&1 || pgrep -f "$p" >/dev/null 2>&1; then
+            printf '  %-16s UP\n' "$p"
+        else
+            printf '  %-16s down\n' "$p"
+        fi
+    done
+    echo "vnc            : $(cmd_vnc_url)"
+    echo "raw vnc toggle : $(vnc_enabled && echo ON || echo OFF)"
+}
+
+cmd_logs() {
+    follow=0; n=200
+    for a in "$@"; do
+        case "$a" in
+            -f) follow=1 ;;
+            [0-9]*) n=$a ;;
+        esac
+    done
+    [ -f "$TESLA_LOG" ] || { echo "(no log yet: $TESLA_LOG)"; return 0; }
+    if [ "$follow" = 1 ]; then
+        exec tail -n "$n" -f "$TESLA_LOG"
+    else
+        tail -n "$n" "$TESLA_LOG"
+    fi
+}
+
+cmd_firmware() {
+    sub=${1:-list}; shift 2>/dev/null || true
+    case "$sub" in
+        list)
+            sel=$( [ -f "$SELFILE" ] && cat "$SELFILE" || echo '')
+            found=0
+            for b in $(fw_files "$TESLA_DATA"); do
+                f=$TESLA_DATA/$b
+                found=1
+                sz=$(du -h "$f" 2>/dev/null | cut -f1)
+                if [ "$b" = "$sel" ]; then echo "* $b ($sz)  [selected]"; else echo "  $b ($sz)"; fi
+            done
+            [ "$found" = 1 ] || echo "(no *.ice / *.squashfs / *.sqfs in $TESLA_DATA)"
+            ;;
+        select)
+            name=${1:-}
+            [ -n "$name" ] || { echo "usage: teslactl firmware select <name>" >&2; return 2; }
+            [ -f "$TESLA_DATA/$name" ] || { echo "not found: $TESLA_DATA/$name" >&2; return 2; }
+            case "$name" in
+                *.squashfs|*.sqfs|*.ice) ;;
+                *) echo "unsupported type (need .ice, .squashfs or .sqfs): $name" >&2; return 2 ;;
+            esac
+            cmd_shutdown >/dev/null
+            echo "$name" > "$SELFILE"
+            log "firmware selected: $name"
+            echo "selected: $name  (run: teslactl start)"
+            ;;
+        *) echo "usage: teslactl firmware list|select <name>" >&2; return 2 ;;
+    esac
+}
+
+cmd_config() {
+    op=${1:-}; dom=${2:-}; key=${3:-}; val=${4:-}
+    case "$op $dom" in
+        "set dv")
+            [ -n "$key" ] && [ -n "$val" ] || { echo "usage: config set dv <name> <value>" >&2; return 2; }
+            log "config set dv $key=$val"
+            "$ENGINE_DIR/sdv" "$key" "$val"
+            ;;
+        "get dv")
+            [ -n "$key" ] || { echo "usage: config get dv <name>" >&2; return 2; }
+            dbus-send --system --print-reply --type=method_call \
+                --dest=com.tesla.Debug /com/tesla/Debug \
+                com.tesla.Debug.get_data_value string:"$key" 2>&1
+            ;;
+        "set gw")
+            [ -n "$key" ] && [ -n "$val" ] || { echo "usage: config set gw <id> <value>" >&2; return 2; }
+            touch "$GWCONF"
+            grep -v "^$key=" "$GWCONF" > "$GWCONF.tmp" 2>/dev/null || true
+            echo "$key=$val" >> "$GWCONF.tmp"
+            mv "$GWCONF.tmp" "$GWCONF"
+            log "config set gw $key=$val"
+            echo "gw[$key]=$val (stored; reference IDs in engine/mods/model3_gateway_values.json)"
+            ;;
+        "get gw")
+            [ -n "$key" ] || { echo "usage: config get gw <id>" >&2; return 2; }
+            if [ -f "$GWCONF" ] && grep -q "^$key=" "$GWCONF"; then
+                grep "^$key=" "$GWCONF" | tail -n1 | cut -d= -f2-
+            else
+                echo "(default — no override; see engine/mods/model3_gateway_values.json)"
+            fi
+            ;;
+        *) echo "usage: config get|set dv|gw <name/id> [value]" >&2; return 2 ;;
+    esac
+}
+
+cmd_debug() {
+    echo "== DEBUG =="
+    echo "-- uname --"; uname -a
+    echo "-- mounts (tesla) --"; mount | grep -E 'tesla|fuse' || true
+    echo "-- processes --"; ps -o pid,comm 2>/dev/null | grep -E 'Xvfb|x11vnc|websockify|QtCar|dbus|bwrap|bridge' || true
+    echo "-- dbus names --"
+    dbus-send --system --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus \
+        org.freedesktop.DBus.ListNames 2>/dev/null | grep -i tesla || echo "  (no com.tesla.* — QtCar not up)"
+    echo "-- X clients --"; DISPLAY=:0 xlsclients 2>/dev/null || echo "  (no X or no clients)"
+    echo "-- fuse dev --"; ls -l /dev/fuse 2>/dev/null || echo "  /dev/fuse MISSING (need --device /dev/fuse)"
+    echo "-- last 40 log lines --"; tail -n 40 "$TESLA_LOG" 2>/dev/null || true
+}
+
+cmd_vnc() {
+    case "${1:-status}" in
+        on)  echo true  > "$RUN/enable_vnc"; DISPLAY=${DISPLAY:-:0} vnc_start; log "raw VNC enabled" ;;
+        off) echo false > "$RUN/enable_vnc"; DISPLAY=${DISPLAY:-:0} vnc_start; log "raw VNC disabled" ;;
+        status) ;;
+        *) echo "usage: teslactl vnc on|off|status" >&2; return 2 ;;
+    esac
+    if vnc_enabled; then echo "raw vnc: ON  (host 127.0.0.1:${VNC_PORT}; needs compose port mapping; tunnel: ssh -N -L ${VNC_PORT}:127.0.0.1:${VNC_PORT} <host>)"
+    else echo "raw vnc: OFF (noVNC at :${NOVNC_PORT} still works)"; fi
+    pgrep -x x11vnc >/dev/null 2>&1 && echo "x11vnc : running" || echo "x11vnc : NOT running (engine not started?)"
+}
+
+cmd_vnc_url() {
+    echo "novnc: http://127.0.0.1:${NOVNC_PORT}/vnc.html?autoconnect=1  |  vnc: 127.0.0.1:${VNC_PORT}  (password: ${VNC_PASSWORD:-tesla})"
+}
+
+usage() {
+    sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+v=${1:-help}; shift 2>/dev/null || true
+case "$v" in
+    start)     cmd_start ;;
+    stop)      cmd_stop ;;
+    restart)   cmd_restart ;;
+    shutdown)  cmd_shutdown ;;
+    status)    cmd_status ;;
+    logs)      cmd_logs "$@" ;;
+    firmware)  cmd_firmware "$@" ;;
+    config)    cmd_config "$@" ;;
+    debug)     cmd_debug ;;
+    vnc)       cmd_vnc "$@" ;;
+    vnc-url)   cmd_vnc_url ;;
+    help|-h|--help) usage ;;
+    *) echo "unknown verb: $v" >&2; usage; exit 2 ;;
+esac

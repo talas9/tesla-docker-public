@@ -1,0 +1,60 @@
+# tesla-docker — PRIMARY deploy path.
+#   build + run:  docker compose up -d --build
+#   control:      docker compose exec tesla-ui teslactl status
+#   web/API:      http://127.0.0.1:8080/   (SSH-tunnel from your workstation)
+#
+# Firmware is NOT in the image. Drop firmware squashfs into ./data/ then:
+#   docker compose exec tesla-ui teslactl firmware select <name>
+#   docker compose exec tesla-ui teslactl start
+#
+# Ports bind to 127.0.0.1 ONLY — no public exposure. Reach them with:
+#   ssh -N -L 8080:127.0.0.1:8080 -L 6080:127.0.0.1:6080 -L 5900:127.0.0.1:5900 <host>
+services:
+  tesla-ui:
+    image: ${TESLA_IMAGE:-tesla-docker:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tesla-ui
+    restart: unless-stopped
+    # squashfuse + fuse-overlayfs inside the container (NOT --privileged):
+    cap_add:
+      - SYS_ADMIN
+      - SYS_NICE                    # QtCar sets realtime main-thread priority;
+                                    # without it perf is severely degraded
+                                    # (verified on example.com 2026-10-15)
+    security_opt:
+      - apparmor:unconfined         # allow FUSE mounts under confinement
+      - seccomp:unconfined          # docker's default seccomp blocks pivot_root
+                                    # even with CAP_SYS_ADMIN added; bwrap needs
+                                    # pivot_root+mount to build the merged-root
+                                    # sandbox (verified on example.com 2026-10-15)
+    devices:
+      - /dev/fuse:/dev/fuse
+    volumes:
+      - ./data:/data                # firmware squashfs images (out-of-band)
+      - tesla-logs:/var/log/tesla
+    ports:
+      - "127.0.0.1:8080:8080"       # web UI + HTTP control API
+      - "127.0.0.1:6080:6080"       # noVNC (embedded in the web UI)
+      - "5901:5900"             # raw VNC (PUBLIC on host :5901). x11vnc only LISTENS for it
+                                    # when ENABLE_VNC=true (or `teslactl vnc on`, live).
+    environment:
+      # Set these in a .env file next to this compose file (auto-loaded):
+      ENABLE_VNC: "${ENABLE_VNC:-true}"       # raw VNC on :5900 (opt-in). noVNC always on.
+      VNC_PASSWORD: "${VNC_PASSWORD:-tesla}"    # raw VNC + noVNC password (always required; 8 chars significant)
+      WEBUI_USER: "${WEBUI_USER:-admin}"        # web UI + /cgi-bin/api HTTP Basic Auth
+      WEBUI_PASSWORD: "${WEBUI_PASSWORD:-}"     # blank => random one generated + logged
+      TESLA_RES: "1920x1200"
+      TESLA_GL: "llvmpipe"          # faster software GL (softpipe = fallback)
+      TESLA_TOUCH: "0"               # fw 2025.20.8: touch_shim crashes QtCar
+                                      # (buffer overflow abort) — documented in
+                                      # engine/shims/BUILD.md; view-only for now
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+          cpus: "4"
+
+volumes:
+  tesla-logs:

@@ -1,0 +1,1150 @@
+{
+  "_meta": {
+    "source": "rootedmodel3securedconfig.bin + gateway_config_schema.json + UDS debug logs",
+    "vin": "5YJ3E1EB0XX000000",
+    "vehicle": "2020 Model 3 Long Range AWD, MCU2 Coriander",
+    "protocol": "UDP port 3500, read=0x0b 0x00 <id>, write=0x0c 0x00 <id> <value>",
+    "note": "Values from UDS debug log override binary where both exist (live vehicle state is authoritative). Binary raw_hex preserved for all entries found in firmware.",
+    "total_config_ids": 92,
+    "from_binary": 76,
+    "from_uds_only": 16,
+    "named": 89,
+    "unknown_unnamed": 3
+  },
+  "0": {
+    "name": "vin",
+    "value": "5YJ3E1EB0XX000000",
+    "type": "string",
+    "description": "Vehicle Identification Number (17 ASCII chars)",
+    "wire_encoding": "17 bytes ASCII",
+    "raw_hex": "9f11000035594a3345314542305858303030303030",
+    "binary_value": "5YJ3E1EB0XX000000"
+  },
+  "2": {
+    "name": "carcomputer_sn",
+    "value": "CI00000000000X",
+    "type": "string",
+    "description": "Gateway ECU serial number",
+    "raw_hex": "2c0e00024237533030303030413030303030",
+    "binary_value": "B7S00000A00000"
+  },
+  "3": {
+    "value": "1479302-02-G",
+    "type": "string",
+    "raw_hex": "4f0c0003313437393330322d30322d47",
+    "name": "gatewayModel",
+    "description": "Gateway model part number"
+  },
+  "5": {
+    "name": "birthday",
+    "value": 0,
+    "type": "uint32",
+    "description": "Vehicle build date (Unix epoch)",
+    "raw_hex": "7304000500000000",
+    "binary_value": 0
+  },
+  "6": {
+    "name": "country",
+    "value": "US",
+    "type": "string",
+    "description": "Market region (2-char country code)",
+    "raw_hex": "570200065553",
+    "binary_value": "US"
+  },
+  "7": {
+    "name": "exteriorColor",
+    "value": 1,
+    "type": "uint8",
+    "description": "Exterior color",
+    "enum": {
+      "0": "RED_MULTICOAT",
+      "1": "SOLID_BLACK",
+      "2": "SILVER_METALLIC",
+      "3": "MIDNIGHT_SILVER",
+      "5": "DEEP_BLUE",
+      "6": "PEARL_WHITE"
+    },
+    "resolved": "SOLID_BLACK",
+    "raw_hex": "b601000701",
+    "binary_value": 1
+  },
+  "8": {
+    "name": "drivetrainType",
+    "value": 1,
+    "type": "uint8",
+    "description": "Number of motors",
+    "enum": {
+      "0": "RWD",
+      "1": "AWD",
+      "2": "AWD_DUAL_REAR"
+    },
+    "resolved": "AWD",
+    "raw_hex": "f201000801",
+    "binary_value": 1
+  },
+  "9": {
+    "name": "airSuspension",
+    "value": 2,
+    "type": "uint8",
+    "description": "Type of suspension installed",
+    "enum": {
+      "0": "NONE",
+      "1": "TESLA_STANDARD",
+      "2": "TESLA_ADAPTIVE"
+    },
+    "resolved": "TESLA_ADAPTIVE",
+    "raw_hex": "3401000900",
+    "binary_value": 0
+  },
+  "10": {
+    "name": "epasType",
+    "value": 1,
+    "type": "uint8",
+    "description": "Type of EPAS ECU installed",
+    "enum": {
+      "0": "MANDO_VGR69_GEN3",
+      "1": "MANDO_VGR66_GEN3"
+    },
+    "resolved": "MANDO_VGR66_GEN3",
+    "raw_hex": "2001000a00",
+    "binary_value": 0
+  },
+  "12": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "2701000c01",
+    "name": "frontSeatHeaters",
+    "description": "Front seat heaters are installed",
+    "enum": {
+      "0": "NONE",
+      "1": "KONGSBERG_LOW_POWER"
+    },
+    "resolved": "KONGSBERG_LOW_POWER"
+  },
+  "13": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "ce01000d01",
+    "name": "rearSeatHeaters",
+    "description": "Rear seat heaters are installed",
+    "enum": {
+      "0": "NONE",
+      "1": "KONGSBERG_LOW_POWER"
+    },
+    "resolved": "KONGSBERG_LOW_POWER"
+  },
+  "14": {
+    "name": "packEnergy",
+    "value": 3,
+    "type": "uint8",
+    "description": "Rated energy of installed battery pack",
+    "enum": {
+      "0": "PACK_50_KWH",
+      "1": "PACK_74_KWH",
+      "2": "PACK_62_KWH",
+      "3": "PACK_100_KWH",
+      "4": "PACK_75_KWH"
+    },
+    "resolved": "PACK_100_KWH",
+    "raw_hex": "da01000e01",
+    "binary_value": 1
+  },
+  "15": {
+    "name": "devSecurityLevel",
+    "value": 0,
+    "type": "uint8",
+    "description": "Gateway debug security level (0=production, 2=LC_GATED, 3=LC_FACTORY)",
+    "enum": {
+      "0": "PRODUCTION",
+      "2": "LC_GATED",
+      "3": "LC_FACTORY"
+    },
+    "resolved": "PRODUCTION",
+    "raw_hex": "6d01000f03",
+    "binary_value": 3
+  },
+  "16": {
+    "name": "restraintsHardwareType",
+    "value": 101,
+    "type": "uint8",
+    "description": "RCM calibration selector",
+    "enum": {
+      "21": "NA_M3",
+      "22": "EUROW_ECALL_M3",
+      "23": "EUROW_NO_ECALL_M3",
+      "32": "NA_MY",
+      "101": "NA_MXP2",
+      "121": "NA_M3_OH"
+    },
+    "resolved": "NA_MXP2",
+    "raw_hex": "4001001015",
+    "binary_value": 21
+  },
+  "17": {
+    "name": "brakeHWType",
+    "value": 5,
+    "type": "uint8",
+    "description": "Brake caliper hardware type",
+    "enum": {
+      "0": "BREMBO_P42_MANDO_43MOC",
+      "1": "BREMBO_LARGE_P42_BREMBO_44MOC",
+      "5": "BREMBO2_42_44_D395_MANDO1_43_D365"
+    },
+    "resolved": "BREMBO2_42_44_D395_MANDO1_43_D365",
+    "raw_hex": "9401001100",
+    "binary_value": 0
+  },
+  "18": {
+    "name": "homelinkType",
+    "value": 1,
+    "type": "uint8",
+    "description": "Type of homelink module installed",
+    "enum": {
+      "0": "NONE",
+      "1": "HOMELINK_V_OPT_2"
+    },
+    "resolved": "HOMELINK_V_OPT_2",
+    "raw_hex": "8001001200",
+    "binary_value": 0
+  },
+  "19": {
+    "name": "rightHandDrive",
+    "value": 0,
+    "type": "uint8",
+    "description": "Driver orientation",
+    "enum": {
+      "0": "LEFT",
+      "1": "RIGHT"
+    },
+    "resolved": "LEFT",
+    "raw_hex": "6901001300",
+    "binary_value": 0
+  },
+  "20": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "8701001401",
+    "name": "roofType",
+    "description": "Type of roof installed",
+    "enum": {
+      "0": "METAL",
+      "1": "FIXED_GLASS",
+      "2": "PANORAMIC"
+    },
+    "resolved": "FIXED_GLASS"
+  },
+  "21": {
+    "name": "vdcType",
+    "value": 1,
+    "type": "uint8",
+    "description": "Vehicle Dynamic Control type",
+    "enum": {
+      "0": "BOSCH_VDC",
+      "1": "TESLA_VDC"
+    },
+    "resolved": "TESLA_VDC",
+    "raw_hex": "6e01001501",
+    "binary_value": 1
+  },
+  "24": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "d701001801",
+    "name": "memoryMirrors",
+    "description": "Memory mirrors (position recall) are installed",
+    "enum": {
+      "0": "NOT_INSTALLED",
+      "1": "SMR"
+    },
+    "resolved": "SMR"
+  },
+  "25": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "3e01001901",
+    "name": "powerSteeringColumn",
+    "description": "Powered steering column is installed",
+    "enum": {
+      "0": "NOT_INSTALLED",
+      "1": "TK"
+    },
+    "resolved": "TK"
+  },
+  "26": {
+    "value": 2,
+    "type": "uint8",
+    "raw_hex": "5b01001a02",
+    "name": "interiorLighting",
+    "description": "Type of interior lighting package installed",
+    "enum": {
+      "0": "BASE",
+      "1": "PREMIUM",
+      "2": "PREMIUM_NO_POCKET_LIGHT"
+    },
+    "resolved": "PREMIUM_NO_POCKET_LIGHT"
+  },
+  "27": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "c301001b01",
+    "name": "frontFogLamps",
+    "description": "Front fog lamps installed",
+    "enum": {
+      "0": "NOT_INSTALLED",
+      "1": "INSTALLED"
+    },
+    "resolved": "INSTALLED"
+  },
+  "28": {
+    "name": "headlamps",
+    "value": 1,
+    "type": "uint8",
+    "description": "Headlamp type",
+    "enum": {
+      "0": "BASE",
+      "1": "PREMIUM",
+      "2": "GLOBAL"
+    },
+    "resolved": "PREMIUM",
+    "raw_hex": "0201001c01",
+    "binary_value": 1
+  },
+  "29": {
+    "name": "autopilot",
+    "value": 3,
+    "type": "uint8",
+    "description": "Autopilot capability level",
+    "enum": {
+      "0": "NONE",
+      "1": "HIGHWAY",
+      "2": "ENHANCED",
+      "3": "SELF_DRIVING",
+      "4": "BASIC"
+    },
+    "resolved": "SELF_DRIVING",
+    "raw_hex": "b501001d03",
+    "binary_value": 3
+  },
+  "30": {
+    "name": "superchargingAccess",
+    "value": 2,
+    "type": "uint8",
+    "description": "Supercharging access level",
+    "enum": {
+      "0": "NOT_ALLOWED",
+      "1": "ALLOWED",
+      "2": "PAY_AS_YOU_GO"
+    },
+    "resolved": "PAY_AS_YOU_GO",
+    "raw_hex": "8e01001e02",
+    "binary_value": 2
+  },
+  "31": {
+    "name": "audioType",
+    "value": 1,
+    "type": "uint8",
+    "description": "Audio system type",
+    "enum": {
+      "0": "BASE",
+      "1": "PREMIUM",
+      "2": "BASE_WITH_PREMIUM200"
+    },
+    "resolved": "PREMIUM",
+    "raw_hex": "1601001f01",
+    "binary_value": 1
+  },
+  "32": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "3d01002001",
+    "name": "lumbarECUType",
+    "description": "Type of lumbar ECU installed",
+    "enum": {
+      "0": "NONE",
+      "1": "ALFMEIER",
+      "2": "ALFMEIER_DRIVER_ONLY_LHD",
+      "3": "ALFMEIER_DRIVER_ONLY_RHD",
+      "4": "AEW",
+      "5": "AEW_DRIVER_ONLY_LHD",
+      "6": "AEW_DRIVER_ONLY_RHD"
+    },
+    "resolved": "ALFMEIER"
+  },
+  "33": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "fb01002100",
+    "name": "ecuMapVersion",
+    "description": "Translate car config to ECUs list",
+    "enum": {
+      "0": "BASE_VERSION"
+    },
+    "resolved": "BASE_VERSION"
+  },
+  "34": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "c001002201",
+    "name": "unknown_0x22",
+    "description": "Config ID 0x0022 (not in schema)"
+  },
+  "35": {
+    "value": 3,
+    "type": "uint8",
+    "raw_hex": "7701002303",
+    "name": "numberHVILNodes",
+    "description": "Number of HVIL nodes",
+    "enum": {
+      "0": "HVIL_NODES_0",
+      "1": "HVIL_NODES_1",
+      "2": "HVIL_NODES_2",
+      "3": "HVIL_NODES_3",
+      "4": "HVIL_NODES_4",
+      "5": "HVIL_NODES_5"
+    },
+    "resolved": "HVIL_NODES_3"
+  },
+  "36": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "e801002401",
+    "name": "frontSeatType",
+    "description": "Front seat trim level",
+    "enum": {
+      "0": "BASE_TESLA",
+      "1": "PREMIUM_TESLA",
+      "2": "PREMIUM_L_YANFENG_R_TESLA",
+      "3": "PREMIUM_L_TESLA_R_YANFENG",
+      "4": "PREMIUM_YANFENG"
+    },
+    "resolved": "PREMIUM_TESLA"
+  },
+  "37": {
+    "value": "0000000000000000000000000000000000000000000000000000000000000000",
+    "type": "hex",
+    "raw_hex": "b72000250000000000000000000000000000000000000000000000000000000000000000",
+    "name": "ed25519Key1",
+    "description": "Ed25519 signing key 1 (32 bytes)"
+  },
+  "38": {
+    "value": "0000000000000000000000000000000000000000000000000000000000000000",
+    "type": "hex",
+    "raw_hex": "5c2000260000000000000000000000000000000000000000000000000000000000000000",
+    "name": "ed25519Key2",
+    "description": "Ed25519 signing key 2 (32 bytes)"
+  },
+  "41": {
+    "name": "wheelType",
+    "value": 28,
+    "type": "uint8",
+    "description": "Wheel type installed",
+    "enum": {
+      "0": "PINWHEEL_18",
+      "1": "STILETTO_19",
+      "18": "PINWHEEL_18_CAP_KIT",
+      "22": "PINWHEEL_REFRESH_18",
+      "28": "CYBERSTREAM_20"
+    },
+    "resolved": "CYBERSTREAM_20",
+    "raw_hex": "7e01002900",
+    "binary_value": 0
+  },
+  "43": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "ac01002b01",
+    "name": "auxParkLamps",
+    "description": "Region-correlated combination of fascia lighting element options",
+    "enum": {
+      "0": "NA_BASE",
+      "1": "NA_PREMIUM",
+      "2": "EU",
+      "3": "NONE"
+    },
+    "resolved": "NA_PREMIUM"
+  },
+  "44": {
+    "name": "pedestrianWarningSound",
+    "value": 1,
+    "type": "uint8",
+    "description": "Pedestrian warning system",
+    "enum": {
+      "0": "NONE",
+      "1": "SPEAKER"
+    },
+    "resolved": "SPEAKER",
+    "raw_hex": "6d01002c01",
+    "binary_value": 1
+  },
+  "45": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "8401002d01",
+    "name": "stalkType",
+    "description": "Turn signal stalk type"
+  },
+  "46": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "9001002e01",
+    "name": "hvacPanelVaneType",
+    "description": "HVAC airwave vane assembly type",
+    "enum": {
+      "0": "PARALLEL_V1",
+      "1": "CONVERGENT_V1"
+    },
+    "resolved": "CONVERGENT_V1"
+  },
+  "47": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "7901002f01",
+    "name": "seatBeltType",
+    "description": "Seat belt type"
+  },
+  "48": {
+    "value": 3,
+    "type": "uint8",
+    "raw_hex": "4601003003",
+    "name": "performancePackage",
+    "description": "Type of vehicle performance package purchased",
+    "enum": {
+      "0": "BASE",
+      "1": "PERFORMANCE",
+      "3": "BASE_PLUS"
+    },
+    "resolved": "BASE_PLUS"
+  },
+  "50": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "ca01003200",
+    "name": "configRevision",
+    "description": "Config revision counter"
+  },
+  "51": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "0c01003301",
+    "name": "activeHighBeam",
+    "description": "Active high beams are installed or not",
+    "enum": {
+      "0": "NOT_ACTIVE",
+      "1": "ACTIVE"
+    },
+    "resolved": "ACTIVE"
+  },
+  "52": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "e201003400",
+    "name": "airbagCutoffSwitch",
+    "description": "The airbag cutoff switch is enabled or disabled",
+    "enum": {
+      "0": "CUTOFF_SWITCH_DISABLED",
+      "1": "CUTOFF_SWITCH_ENABLED"
+    },
+    "resolved": "CUTOFF_SWITCH_DISABLED"
+  },
+  "53": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "0b01003500",
+    "name": "intrusionSensorType",
+    "description": "Type of intrusion sensor installed",
+    "enum": {
+      "0": "NOT_INSTALLED",
+      "1": "VODAFONE"
+    },
+    "resolved": "NOT_INSTALLED"
+  },
+  "55": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "f601003700",
+    "name": "spoilerType",
+    "description": "Type of spoiler installed",
+    "enum": {
+      "0": "NOT_INSTALLED",
+      "1": "PASSIVE"
+    },
+    "resolved": "NOT_INSTALLED"
+  },
+  "56": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "9d01003801",
+    "name": "rearGlassType",
+    "description": "Type of rear glass installed",
+    "enum": {
+      "0": "NX",
+      "1": "TSA5_NOPET"
+    },
+    "resolved": "TSA5_NOPET"
+  },
+  "58": {
+    "name": "rearFogLamps",
+    "value": 1,
+    "type": "uint8",
+    "description": "Rear fog lamps installed",
+    "enum": {
+      "0": "NOT_INSTALLED",
+      "1": "INSTALLED"
+    },
+    "resolved": "INSTALLED",
+    "raw_hex": "4f01003a00",
+    "binary_value": 0
+  },
+  "59": {
+    "name": "dasHw",
+    "value": 4,
+    "type": "uint8",
+    "description": "Driver assistance system hardware",
+    "enum": {
+      "3": "PARKER_PASCAL_2_5",
+      "4": "TESLA_AP3"
+    },
+    "resolved": "TESLA_AP3",
+    "raw_hex": "1a01003b04",
+    "binary_value": 4
+  },
+  "60": {
+    "name": "securityVersion",
+    "value": 6,
+    "type": "uint32",
+    "description": "Monotonic anti-rollback counter (len=4 bytes)",
+    "note": "Gateway-architecture.md shows id=60 for securityVersion",
+    "raw_hex": "dd04003c00000004",
+    "binary_value": 4
+  },
+  "62": {
+    "name": "tireType",
+    "value": 23,
+    "type": "uint8",
+    "description": "Tire model installed",
+    "enum": {
+      "0": "UNKNOWN",
+      "1": "MICHELIN_ALL_SEASON_18",
+      "23": "CONTI_ALL_SEASON_20"
+    },
+    "resolved": "CONTI_ALL_SEASON_20",
+    "raw_hex": "b501003e01",
+    "binary_value": 1
+  },
+  "63": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "5c01003f01",
+    "name": "roofGlassType",
+    "description": "Type of roof glass installed",
+    "enum": {
+      "0": "TSA3_PET",
+      "1": "TSA5_NOPET"
+    },
+    "resolved": "TSA5_NOPET"
+  },
+  "64": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "cc01004000",
+    "name": "trackModePackage",
+    "description": "Customer purchased track mode package",
+    "enum": {
+      "0": "NONE",
+      "1": "PERFORMANCE",
+      "2": "ENABLED_UI_SOS"
+    },
+    "resolved": "NONE"
+  },
+  "65": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "2501004100",
+    "name": "trackModeAllowed",
+    "description": "Track mode allowed flag"
+  },
+  "66": {
+    "name": "mapRegion",
+    "value": 0,
+    "type": "uint8",
+    "description": "Navigation map region",
+    "enum": {
+      "0": "US",
+      "1": "EU",
+      "3": "CN",
+      "4": "AU",
+      "5": "JP"
+    },
+    "resolved": "US",
+    "note": "Inferred from country=US",
+    "raw_hex": "3101004200",
+    "binary_value": 0
+  },
+  "67": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "d801004300",
+    "name": "rearLightType",
+    "description": "Rear light fixture type",
+    "enum": {
+      "0": "NA",
+      "1": "EU_CN",
+      "2": "GLOBAL"
+    },
+    "resolved": "NA"
+  },
+  "69": {
+    "name": "chassisType",
+    "value": 2,
+    "type": "uint8",
+    "description": "Chassis type (0=ModelS, 1=ModelX, 2=Model3, 3=ModelY, 4=SemiTruck, 5=Cybertruck)",
+    "enum": {
+      "0": "ModelS",
+      "1": "ModelX",
+      "2": "Model3",
+      "3": "ModelY",
+      "4": "SemiTruck",
+      "5": "Cybertruck"
+    },
+    "resolved": "Model3",
+    "note": "gw-diag ID 0x0045, confirmed from get-gateway-config",
+    "raw_hex": "ae01004502",
+    "binary_value": 2
+  },
+  "70": {
+    "name": "plcSupportType",
+    "value": 2,
+    "type": "uint8",
+    "description": "Power Line Communication support",
+    "enum": {
+      "0": "NONE",
+      "1": "ONBOARD_ADAPTER",
+      "2": "NATIVE_CHARGE_PORT"
+    },
+    "resolved": "NATIVE_CHARGE_PORT",
+    "raw_hex": "e401004600",
+    "binary_value": 0
+  },
+  "72": {
+    "name": "towPackage",
+    "value": 1,
+    "type": "uint8",
+    "description": "Tow package installed",
+    "enum": {
+      "0": "NONE",
+      "1": "TESLA_REV1"
+    },
+    "resolved": "TESLA_REV1",
+    "raw_hex": "4901004800",
+    "binary_value": 0
+  },
+  "73": {
+    "value": 2,
+    "type": "uint8",
+    "raw_hex": "fe01004902",
+    "name": "passOccupancySensorSubtype",
+    "description": "Passenger occupancy sensor subtype"
+  },
+  "74": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "b401004a00",
+    "name": "passengerOccupancySensorType",
+    "description": "Type of occupancy sensor installed in the passenger seat",
+    "enum": {
+      "0": "OCS",
+      "1": "RESISTIVE_PAD",
+      "2": "IEE_OCS"
+    },
+    "resolved": "OCS"
+  },
+  "75": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "7201004b01",
+    "name": "connectivityPackage",
+    "description": "Purchasable connectivity package",
+    "enum": {
+      "0": "BASE",
+      "1": "PREMIUM"
+    },
+    "resolved": "PREMIUM"
+  },
+  "76": {
+    "name": "tpmsType",
+    "value": 1,
+    "type": "uint8",
+    "description": "Tire pressure monitoring system type",
+    "enum": {
+      "0": "CONTI_2",
+      "1": "TESLA_BLE"
+    },
+    "resolved": "TESLA_BLE",
+    "raw_hex": "9c01004c00",
+    "binary_value": 0
+  },
+  "77": {
+    "value": 3,
+    "type": "uint8",
+    "raw_hex": "0401004d03",
+    "name": "frontSeatReclinerHardware",
+    "description": "Type of recliner hardware in Model 3 seats",
+    "enum": {
+      "0": "STANDARD_RANGE",
+      "1": "RIGHT_SEAT_REDUCED_RANGE",
+      "2": "LEFT_SEAT_REDUCED_RANGE",
+      "3": "LEFT_RIGHT_SEAT_REDUCED_RANGE"
+    },
+    "resolved": "LEFT_RIGHT_SEAT_REDUCED_RANGE"
+  },
+  "78": {
+    "value": 2,
+    "type": "uint8",
+    "raw_hex": "3f01004e02",
+    "name": "rearSeatFoldType",
+    "description": "Rear seat fold mechanism type"
+  },
+  "79": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "8801004f00",
+    "name": "unknown_4F",
+    "description": "Config 0x4F (unknown)"
+  },
+  "80": {
+    "value": 2,
+    "type": "uint8",
+    "raw_hex": "b701005002",
+    "name": "displayType",
+    "description": "Display type/size"
+  },
+  "81": {
+    "name": "deliveryStatus",
+    "value": 1,
+    "type": "uint8",
+    "description": "Vehicle delivery status",
+    "note": "gw-diag ID 0x0051, get-gateway-config deliverystatus",
+    "raw_hex": "2f01005101",
+    "binary_value": 1
+  },
+  "83": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "d201005301",
+    "name": "intrusionSensorInstalled",
+    "description": "Intrusion sensor installed flag"
+  },
+  "84": {
+    "name": "compressorType",
+    "value": 4,
+    "type": "uint8",
+    "description": "HVAC compressor type",
+    "enum": {
+      "0": "HANON_33CC",
+      "1": "DENSO_41CC_8K",
+      "4": "DENSO_11K_COP1_ENABLED",
+      "5": "SANDEN_V2"
+    },
+    "resolved": "DENSO_11K_COP1_ENABLED",
+    "raw_hex": "3c01005400",
+    "binary_value": 0
+  },
+  "85": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "d501005500",
+    "name": "cabinPTCHeaterType",
+    "description": "Type of Positive Temperature Coefficient (PTC) heater installed",
+    "enum": {
+      "0": "BORGWARNER",
+      "1": "NONE"
+    },
+    "resolved": "BORGWARNER"
+  },
+  "86": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "c101005600",
+    "name": "coolantPumpType",
+    "description": "Number of coolant loop pumps installed",
+    "enum": {
+      "0": "DUAL",
+      "1": "SINGLE_PUMP_BATT",
+      "2": "DUAL_SAN_P4",
+      "3": "SM6PHAN_OFFBOARD4PSAN",
+      "4": "DUAL_SAN_P4_LUB",
+      "5": "DUAL_MIX"
+    },
+    "resolved": "DUAL"
+  },
+  "91": {
+    "value": 1,
+    "type": "uint8",
+    "raw_hex": "5701005b01",
+    "name": "passengerAirbagType",
+    "description": "Type of passenger airbag installed",
+    "enum": {
+      "0": "FULL_SUPPRESSION",
+      "1": "SAFETY_VENT",
+      "2": "EUROW"
+    },
+    "resolved": "SAFETY_VENT"
+  },
+  "92": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "b901005c00",
+    "name": "headlightLevelerType",
+    "description": "Type of headlight leveling system installed",
+    "enum": {
+      "0": "NONE",
+      "1": "GEN1",
+      "2": "VIRTUAL_PITCH_SENSOR"
+    },
+    "resolved": "NONE"
+  },
+  "93": {
+    "value": 2,
+    "type": "uint8",
+    "raw_hex": "0e01005d02",
+    "name": "headlightLevelerSubtype",
+    "description": "Headlight leveler subtype"
+  },
+  "94": {
+    "value": 0,
+    "type": "uint8",
+    "raw_hex": "4401005e00",
+    "name": "unknown_5E",
+    "description": "Config 0x5E (unknown)"
+  },
+  "1": {
+    "name": "carcomputer_pn",
+    "value": "1637790-61-D",
+    "type": "string",
+    "description": "Gateway ECU part number",
+    "source": "uds_debug_log"
+  },
+  "96": {
+    "name": "twelveVBatteryType",
+    "value": 2,
+    "type": "uint8",
+    "description": "12V battery type",
+    "enum": {
+      "0": "ATLASBX_B24_FLOODED",
+      "1": "CLARIOS_B24_FLOODED",
+      "2": "CATL_LI_ION"
+    },
+    "resolved": "CATL_LI_ION",
+    "source": "uds_debug_log"
+  },
+  "97": {
+    "name": "radarHeaterType",
+    "value": 4,
+    "type": "uint8",
+    "description": "Radar heater type",
+    "enum": {
+      "0": "NONE",
+      "1": "BECKER_THIN_3M",
+      "4": "MODELX_BACKER_THIN_3M"
+    },
+    "resolved": "MODELX_BACKER_THIN_3M",
+    "source": "uds_debug_log"
+  },
+  "99": {
+    "name": "parkAssistECUType",
+    "value": 1,
+    "type": "uint8",
+    "description": "Park assist ECU type",
+    "enum": {
+      "0": "NOT_INSTALLED",
+      "1": "TESLA_REV1"
+    },
+    "resolved": "TESLA_REV1",
+    "note": "accessId not in public schema; inferred from decoded config file",
+    "source": "uds_debug_log"
+  },
+  "105": {
+    "name": "wirelessPhoneChargerType",
+    "value": 2,
+    "type": "uint8",
+    "description": "Wireless phone charger type",
+    "enum": {
+      "0": "NONE_OR_USB",
+      "1": "FRONT_LIN",
+      "2": "FRONT_AND_REAR_LIN"
+    },
+    "resolved": "FRONT_AND_REAR_LIN",
+    "source": "uds_debug_log"
+  },
+  "106": {
+    "name": "interiorTrimType",
+    "value": 0,
+    "type": "uint8",
+    "description": "Interior trim type",
+    "enum": {
+      "0": "BLACK",
+      "1": "WHITE",
+      "6": "EBONY_BLACK"
+    },
+    "resolved": "BLACK",
+    "source": "uds_debug_log"
+  },
+  "133": {
+    "name": "frontUsbHubType",
+    "value": 1,
+    "type": "uint8",
+    "description": "Front USB hub type",
+    "enum": {
+      "0": "USB_2",
+      "4": "USB_NO_DATA"
+    },
+    "resolved": "value_1_UNKNOWN_ENUM",
+    "note": "Value 1 not in schema; likely USB_3 or similar",
+    "source": "uds_debug_log"
+  },
+  "136": {
+    "name": "interiorCameraType",
+    "value": 1,
+    "type": "uint8",
+    "description": "Interior cabin camera type",
+    "note": "interiorCamFanType has accessId=136 in schema; interiorCameraType accessId not in public schema",
+    "source": "uds_debug_log"
+  },
+  "150": {
+    "name": "caliperColorType",
+    "value": 0,
+    "type": "uint8",
+    "description": "Brake caliper color",
+    "note": "accessId=150 per schema",
+    "source": "uds_debug_log"
+  },
+  "49": {
+    "name": "ebuck",
+    "value": 0,
+    "type": "uint8",
+    "description": "eBuck module present (0=no, 1=yes)",
+    "note": "gw-diag ID 0x0031, get-gateway-config isebuck",
+    "source": "uds_debug_log"
+  },
+  "57": {
+    "name": "gtwAppConfig",
+    "value": 0,
+    "type": "uint8",
+    "description": "Gateway application config flags",
+    "note": "gw-diag ID 0x0039, get-gateway-config gtw_app_config. Response is multi-byte; using 0 as default",
+    "source": "uds_debug_log"
+  },
+  "116": {
+    "name": "gloveboxUsbType",
+    "value": 1,
+    "type": "uint8",
+    "description": "Glovebox USB type",
+    "note": "gw-diag ID 0x0074, get-gateway-config usbtype",
+    "source": "uds_debug_log"
+  },
+  "117": {
+    "name": "tunerType",
+    "value": 0,
+    "type": "uint8",
+    "description": "Radio tuner type",
+    "note": "gw-diag ID 0x0075, get-gateway-config tuner",
+    "source": "uds_debug_log"
+  },
+  "197": {
+    "name": "rearDisplayType",
+    "value": 1,
+    "type": "uint8",
+    "description": "Rear display type",
+    "note": "gw-diag ID 0x00C5, get-gateway-config reardisplaytype",
+    "source": "uds_debug_log"
+  },
+  "211": {
+    "name": "configD3",
+    "value": 0,
+    "type": "uint8",
+    "description": "Config 0xD3 (purpose TBD)",
+    "note": "gw-diag ID 0x00D3, get-gateway-config config-D3",
+    "source": "uds_debug_log"
+  },
+  "237": {
+    "name": "robotaxiTcu",
+    "value": 0,
+    "type": "uint8",
+    "description": "Robotaxi secondary TCU type",
+    "note": "gw-diag ID 0x00ED, get-gateway-config secondary-tcu",
+    "source": "uds_debug_log"
+  },
+  "_env_only_no_confirmed_id": {
+    "chassisType_note": "MOVED to ID 69 (0x45) — confirmed from get-gateway-config firmware script",
+    "carType": {
+      "value": "CAR_TYPE_MODEL3",
+      "env_key": "CAR_TYPE",
+      "note": "Not a gateway config ID; derived from platform detection"
+    },
+    "platform": {
+      "value": "ICE-MRB",
+      "env_key": "PLATFORM",
+      "note": "Not a gateway config ID; derived from hardware detection"
+    },
+    "infotainment_pn": {
+      "value": "1960001-16-C",
+      "env_key": "INFOTAINMENT_PN",
+      "note": "Stored as separate config ID; exact ID unknown (not in public schema)"
+    },
+    "infotainment_sn": {
+      "value": "QNT213301007S0",
+      "env_key": "INFOTAINMENT_SN",
+      "note": "Stored as separate config ID; exact ID unknown"
+    },
+    "secondRowSeatType": {
+      "value": 2,
+      "env_key": "SECOND_ROW_SEAT",
+      "note": "No accessId in decoded config; likely higher-numbered ID"
+    },
+    "thirdRowSeatType": {
+      "value": 1,
+      "env_key": "THIRD_ROW_SEAT",
+      "note": "No accessId in decoded config"
+    },
+    "steeringHeaterEnabled": {
+      "value": 4,
+      "env_key": "STEERING_HEATER",
+      "note": "No accessId in decoded config"
+    },
+    "gloveboxUSBType": {
+      "value": 1,
+      "env_key": "GLOVEBOX_USB",
+      "note": "No accessId in decoded config"
+    },
+    "epblHwType": {
+      "value": 6,
+      "env_key": "EPBL_HW",
+      "note": "Electronic Parking Brake Left; no accessId in decoded config"
+    },
+    "epbrHwType": {
+      "value": 6,
+      "env_key": "EPBR_HW",
+      "note": "Electronic Parking Brake Right; no accessId in decoded config"
+    },
+    "immersiveAudio": {
+      "value": 2,
+      "env_key": "IMMERSIVE_AUDIO",
+      "note": "Security assessment shows this at position 81 in the feature table, but that may be a table row number not accessId. No confirmed accessId."
+    },
+    "mcu": {
+      "value": "mcu2",
+      "env_key": "MCU",
+      "note": "Not a gateway config; hardware detection"
+    },
+    "mcuBoard": {
+      "value": "Coriander",
+      "env_key": "MCU_BOARD",
+      "note": "Not a gateway config; hardware detection"
+    },
+    "displayRes": {
+      "value": "1920x1200",
+      "env_key": "DISPLAY_RES",
+      "note": "Not a gateway config; display hardware property"
+    }
+  }
+}

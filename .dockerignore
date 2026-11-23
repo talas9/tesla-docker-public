@@ -1,0 +1,15 @@
+# Keep firmware and secrets out of the build context (also IP-safety).
+data/
+*.squashfs
+*.sqfs
+*.mcu2
+*.ice
+*.ape3
+*.ssq
+firmware/
+.git/
+*.log
+.DS_Store
+docs/
+README.md
+# (engine/mods/swrast_dri_nollvm.so is NOT ignored — needed at build time.)

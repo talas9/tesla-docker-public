@@ -1,0 +1,22 @@
+# Firmware + anything Tesla-proprietary must NEVER be committed.
+data/
+*.squashfs
+*.sqfs
+*.mcu2
+*.ice
+*.ape3
+*.ssq
+firmware/
+*.bin
+
+# Build / runtime artefacts
+*.o
+touch_shim.so
+x11_touch_bridge
+*.log
+.DS_Store
+
+# Note: engine/mods/swrast_dri_nollvm.so (Mesa, open source) IS tracked on
+# purpose — it is a required build input, not firmware.
+!engine/mods/swrast_dri_nollvm.so
+.env

@@ -1,0 +1,7 @@
+#!/bin/sh
+# runit service: the Tesla UI engine (Xvfb/VNC/QtCar). On-demand.
+# A `down` file ships beside this so it does NOT auto-start; `teslactl start`
+# removes it and brings the service up. If QtCar exits, runit reruns this
+# script => a full clean relaunch.
+exec 2>&1
+exec /opt/tesla/engine/initiator.sh

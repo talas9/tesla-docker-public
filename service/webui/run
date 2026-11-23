@@ -1,0 +1,28 @@
+#!/bin/sh
+# runit service: web UI + HTTP control API (busybox httpd). Always on.
+# The whole site (UI + /cgi-bin/api) is behind HTTP Basic Auth.
+#   WEBUI_USER      (default admin)
+#   WEBUI_PASSWORD  REQUIRED. If unset/blank/"changeme"/"tesla", a random one is
+#                   generated, saved to /run/tesla/webui_password and logged.
+exec 2>&1
+: "${TESLA_HTTP_PORT:=8080}"
+: "${WEBUI_USER:=admin}"
+RUN=/run/tesla; mkdir -p "$RUN"
+pw=${WEBUI_PASSWORD:-}
+case "$pw" in
+    ""|changeme|tesla|admin|password)
+        if [ -s "$RUN/webui_password" ]; then pw=$(cat "$RUN/webui_password")
+        else
+            pw=$(head -c 48 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 16)
+            echo "[webui] WEBUI_PASSWORD not set (or weak) — generated one:"
+            echo "[webui]   user=$WEBUI_USER password=$pw"
+        fi ;;
+esac
+( umask 077; printf '%s' "$pw" > "$RUN/webui_password" )
+case "$pw$WEBUI_USER" in *:*) echo "[webui] FATAL: ':' not allowed in user/password"; sleep 3; exit 1 ;; esac
+( umask 077
+  cp /opt/tesla/webui/httpd.conf "$RUN/httpd.conf"
+  printf '/:%s:%s\n' "$WEBUI_USER" "$pw" >> "$RUN/httpd.conf" )
+echo "[webui] busybox httpd on 0.0.0.0:${TESLA_HTTP_PORT} (basic auth, user=$WEBUI_USER)"
+exec busybox httpd -f -vv -p "0.0.0.0:${TESLA_HTTP_PORT}" -r "tesla-docker" \
+    -h /opt/tesla/webui -c "$RUN/httpd.conf"

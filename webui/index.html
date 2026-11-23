@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tesla-docker control</title>
+<style>
+  :root{--bg:#0d1117;--panel:#161b22;--border:#30363d;--fg:#e6edf3;--muted:#8b949e;--accent:#e82127;--ok:#3fb950}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+  header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--panel)}
+  header b{color:var(--accent);font-size:16px}
+  header .sp{flex:1}
+  main{display:grid;grid-template-columns:360px 1fr;gap:12px;padding:12px;min-height:calc(100vh - 54px)}
+  @media(max-width:860px){main{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px}
+  .card h3{margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  button{background:#21262d;color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:7px 11px;cursor:pointer;font:inherit}
+  button:hover{border-color:var(--accent)}
+  button.go{background:var(--accent);border-color:var(--accent);color:#fff}
+  .row{display:flex;flex-wrap:wrap;gap:6px}
+  input,select{background:#0d1117;color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:6px;font:inherit}
+  input{width:100%}
+  pre{background:#010409;border:1px solid var(--border);border-radius:6px;padding:10px;max-height:260px;overflow:auto;white-space:pre-wrap;margin:0}
+  .vnc{height:100%;min-height:480px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#000}
+  .vnc iframe{width:100%;height:100%;border:0}
+  label{display:block;color:var(--muted);font-size:12px;margin:6px 0 2px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+</style>
+</head>
+<body>
+<header>
+  <b>tesla-docker</b><span class="sp"></span>
+  <span id="dot" style="color:var(--muted)">&#9679;</span>
+  <button onclick="refresh()">status</button>
+</header>
+<main>
+  <div>
+    <div class="card">
+      <h3>Power</h3>
+      <div class="row">
+        <button class="go" onclick="api('start')">Start</button>
+        <button onclick="api('restart')">Restart</button>
+        <button onclick="api('stop')">Stop</button>
+        <button onclick="api('shutdown')">Shutdown</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Firmware</h3>
+      <select id="fwsel"></select>
+      <div class="row" style="margin-top:6px">
+        <button onclick="selectFw()">Select</button>
+        <button onclick="listFw()">Reload list</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Config — data value (sdv)</h3>
+      <label>DV name</label><input id="dvname" placeholder="CD_displayState">
+      <label>value</label><input id="dvval" placeholder="1">
+      <div class="row" style="margin-top:6px">
+        <button onclick="setDv()">Set DV</button>
+        <button onclick="getDv()">Get DV</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Config — gateway value</h3>
+      <div class="grid2">
+        <div><label>config id</label><input id="gwid" placeholder="29"></div>
+        <div><label>value</label><input id="gwval" placeholder="1"></div>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <button onclick="setGw()">Set GW</button>
+        <button onclick="getGw()">Get GW</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Raw VNC (port 5900)</h3>
+      <div class="row">
+        <button onclick="api('vnc-on')">Enable</button>
+        <button onclick="api('vnc-off')">Disable</button>
+        <button onclick="api('vnc-status')">Status</button>
+      </div>
+      <div style="color:var(--muted);font-size:12px;margin-top:4px">Off by default. noVNC below is always on. Needs an SSH tunnel + VNC password.</div>
+    </div>
+    <div class="card">
+      <h3>Output</h3>
+      <pre id="out">ready.</pre>
+      <div class="row" style="margin-top:6px">
+        <button onclick="api('logs&n=200')">Logs</button>
+        <button onclick="api('debug')">Debug</button>
+        <button onclick="api('status')">Status</button>
+      </div>
+    </div>
+  </div>
+  <div class="vnc"><iframe id="vnc" title="noVNC"></iframe></div>
+</main>
+<script>
+const out = document.getElementById('out');
+function show(t){ out.textContent = t; }
+async function api(action){
+  show('… '+action);
+  try{
+    const r = await fetch('cgi-bin/api?action='+action);
+    const t = await r.text();
+    show(t);
+    if(action==='status') paintDot(t);
+    return t;
+  }catch(e){ show('request failed: '+e); }
+}
+function paintDot(t){
+  const up = /QtCar +UP/.test(t);
+  document.getElementById('dot').style.color = up ? 'var(--ok)' : 'var(--muted)';
+}
+async function listFw(){
+  const t = await api('firmware-list');
+  const sel = document.getElementById('fwsel'); sel.innerHTML='';
+  t.split('\n').forEach(line=>{
+    const m = line.match(/^[* ]\s*(\S+\.(?:squashfs|sqfs|ice))/);
+    if(m){ const o=document.createElement('option'); o.value=m[1];
+           o.textContent=line.trim(); if(line[0]==='*') o.selected=true; sel.appendChild(o); }
+  });
+}
+function selectFw(){ const n=document.getElementById('fwsel').value; if(n) api('firmware-select&name='+encodeURIComponent(n)); }
+function setDv(){ api('config-set-dv&name='+encodeURIComponent(dvname.value)+'&value='+encodeURIComponent(dvval.value)); }
+function getDv(){ api('config-get-dv&name='+encodeURIComponent(dvname.value)); }
+function setGw(){ api('config-set-gw&id='+encodeURIComponent(gwid.value)+'&value='+encodeURIComponent(gwval.value)); }
+function getGw(){ api('config-get-gw&id='+encodeURIComponent(gwid.value)); }
+function refresh(){ api('status'); }
+// embed noVNC (served by websockify on :6080)
+document.getElementById('vnc').src =
+  location.protocol+'//'+location.hostname+':6080/vnc.html?autoconnect=1&resize=scale';
+listFw(); refresh();
+setInterval(refresh, 8000);
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+#!/bin/sh
+# webui/cgi-bin/api — thin HTTP front for teslactl. busybox CGI. Pure sh.
+# All real logic lives in teslactl so CLI and HTTP share behaviour + logging.
+#
+#   GET /cgi-bin/api?action=status
+#               ?action=start|stop|restart|shutdown
+#               ?action=logs&n=200
+#               ?action=firmware-list
+#               ?action=firmware-select&name=<fw>
+#               ?action=config-get-gw&id=<id>
+#               ?action=config-set-gw&id=<id>&value=<v>
+#               ?action=config-set-dv&name=<n>&value=<v>
+#               ?action=config-get-dv&name=<n>
+#               ?action=vnc-url | vnc-status | vnc-on | vnc-off | debug
+# Auth: the whole site (incl. this CGI) is behind HTTP Basic Auth (service/webui/run).
+set -u
+TESLACTL=/usr/local/bin/teslactl
+
+printf 'Content-Type: text/plain; charset=utf-8\r\n'
+printf 'Cache-Control: no-store\r\n\r\n'
+
+urldecode() { printf '%b' "$(printf '%s' "$1" | sed 's/+/ /g; s/%/\\x/g')"; }
+qs_get() {
+    printf '%s' "${QUERY_STRING:-}" | tr '&' '\n' | grep "^$1=" | head -n1 | cut -d= -f2- \
+        | { read -r v 2>/dev/null; urldecode "$v"; }
+}
+
+action=$(qs_get action)
+[ -n "$action" ] || action=status
+
+case "$action" in
+    status)            "$TESLACTL" status ;;
+    start)             "$TESLACTL" start ;;
+    stop)              "$TESLACTL" stop ;;
+    restart)           "$TESLACTL" restart ;;
+    shutdown)          "$TESLACTL" shutdown ;;
+    debug)             "$TESLACTL" debug ;;
+    vnc-url)           "$TESLACTL" vnc-url ;;
+    vnc-status)        "$TESLACTL" vnc status ;;
+    vnc-on)            "$TESLACTL" vnc on ;;
+    vnc-off)           "$TESLACTL" vnc off ;;
+    logs)              n=$(qs_get n); [ -n "$n" ] || n=200; "$TESLACTL" logs "$n" ;;
+    firmware-list)     "$TESLACTL" firmware list ;;
+    firmware-select)   "$TESLACTL" firmware select "$(qs_get name)" ;;
+    config-set-dv)     "$TESLACTL" config set dv "$(qs_get name)" "$(qs_get value)" ;;
+    config-get-dv)     "$TESLACTL" config get dv "$(qs_get name)" ;;
+    config-set-gw)     "$TESLACTL" config set gw "$(qs_get id)" "$(qs_get value)" ;;
+    config-get-gw)     "$TESLACTL" config get gw "$(qs_get id)" ;;
+    *) printf 'ERROR: unknown action: %s\n' "$action" ;;
+esac

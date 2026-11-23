@@ -1,0 +1,34 @@
+#!/bin/sh
+# sdv <DvName> <value>
+# Set a Tesla "data value" on the running QtCarDvServer via D-Bus.
+#
+# sdv ONLY works once QtCar/QtCarDvServer is running (it registers
+# com.tesla.Debug on the system bus). Before that, every call fails — that is
+# expected, not a spelling error.
+#
+# Preference order:
+#   1. The firmware's own /usr/local/bin/sdv inside the merged root (the
+#      verified-working tool), executed via bwrap so it shares the system bus.
+#   2. A direct dbus-send fallback (interface per the QtCarDvServer debug API;
+#      object path / method kept best-effort — adjust if a firmware differs).
+set -u
+
+[ $# -ge 2 ] || { echo "usage: sdv <DvName> <value>" >&2; exit 2; }
+name=$1; val=$2
+ROOT=${TESLA_ROOT:-/tesla}
+BUS=${DBUS_SYSTEM_BUS_ADDRESS:-unix:path=/run/dbus/system_bus_socket}
+export DBUS_SYSTEM_BUS_ADDRESS="$BUS"
+
+if [ -x "$ROOT/usr/local/bin/sdv" ]; then
+    exec bwrap \
+        --bind "$ROOT" / \
+        --dev /dev --proc /proc --tmpfs /run \
+        --ro-bind /run/dbus /run/dbus \
+        --ro-bind /tmp/.X11-unix /tmp/.X11-unix \
+        --setenv DBUS_SYSTEM_BUS_ADDRESS "$BUS" \
+        /usr/local/bin/sdv "$name" "$val"
+fi
+
+exec dbus-send --system --print-reply --type=method_call \
+    --dest=com.tesla.Debug /com/tesla/Debug \
+    com.tesla.Debug.set_data_value string:"$name" string:"$val"
